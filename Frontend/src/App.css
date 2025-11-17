@@ -1,0 +1,934 @@
+/* Custom styles for ShadiSeva */
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Navbar styles */
+.navbar {
+  z-index: 1030;
+  position: relative;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white !important;
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: white !important;
+}
+
+.navbar-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Admin navbar specific styles */
+.admin-navbar {
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.admin-navbar .navbar-brand {
+  color: #f7fafc !important;
+  font-weight: 700;
+}
+
+.admin-navbar .nav-link {
+  color: rgba(247, 250, 252, 0.8) !important;
+  transition: color 0.3s ease;
+}
+
+.admin-navbar .nav-link:hover {
+  color: #f7fafc !important;
+}
+
+.admin-navbar .navbar-text {
+  color: rgba(247, 250, 252, 0.9) !important;
+}
+
+main {
+  flex: 1;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Service card hover effects */
+.service-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Custom button styles */
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background-color: #1e7e34;
+  border-color: #1e7e34;
+}
+
+/* Hero section gradients */
+.bg-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+/* Card shadows */
+.card {
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Admin specific card styles */
+.vendor-request-card {
+  border-left: 4px solid #ffc107;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vendor-request-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.2);
+}
+
+.user-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.booking-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Form styling */
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Loading spinner */
+.spinner-border {
+  color: #007bff;
+}
+
+/* Table responsive */
+.table-responsive {
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+/* Badge styling */
+.badge {
+  font-size: 0.75em;
+}
+
+/* Modal styling */
+.modal-content {
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Alert styling */
+.alert {
+  border: none;
+  border-radius: 0.5rem;
+}
+
+/* Footer styling */
+.app-footer {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  color: #e2e8f0;
+  padding: 2rem 0;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-brand h5 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.footer-brand p {
+  color: #a0aec0;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.footer-links {
+  font-size: 0.875rem;
+  color: #a0aec0;
+}
+
+.footer-links span {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.footer-links i {
+  color: #667eea;
+}
+
+.footer-copyright {
+  color: #718096;
+  font-size: 0.75rem;
+}
+
+/* Responsive footer adjustments */
+@media (max-width: 767.98px) {
+  .app-footer {
+    padding: 1.5rem 0;
+  }
+  
+  .footer-links {
+    margin-top: 1rem;
+  }
+  
+  .footer-links span {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* ===== PAGE CONTAINERS ===== */
+
+/* All page containers */
+.auth-page,
+.dashboard-page,
+.profile-page,
+.services-page {
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  padding: 1rem 0;
+}
+
+/* ===== HERO SECTIONS ===== */
+
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0 0 2rem 2rem;
+}
+
+.hero-content {
+  text-align: center;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
+/* ===== SECTION TITLES ===== */
+
+.section-title {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0;
+}
+
+/* ===== AUTHENTICATION PAGES STYLES ===== */
+
+/* Auth page container */
+.auth-page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+}
+
+/* Auth title and subtitle */
+.auth-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.auth-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0;
+}
+
+/* Auth card */
+.auth-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.auth-card-body {
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Auth card title and subtitle */
+.auth-card-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.auth-card-subtitle {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  color: #718096;
+  margin-bottom: 0;
+}
+
+/* Auth form groups */
+.auth-form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Auth labels */
+.auth-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Auth input wrapper */
+.auth-input-wrapper {
+  position: relative;
+}
+
+/* Auth inputs */
+.auth-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  padding-right: 3rem;
+  font-size: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: white;
+  transition: all 0.3s ease;
+  min-height: 3rem;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.auth-input:hover {
+  border-color: #667eea;
+}
+
+/* Auth input icons */
+.auth-input-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+/* Auth button wrapper */
+.auth-button-wrapper {
+  margin: 2rem 0;
+}
+
+/* Auth button */
+.auth-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-button:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  color: white;
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Auth alert */
+.auth-alert {
+  border: none;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+/* Auth divider */
+.auth-divider {
+  margin: 2rem 0;
+  border-color: #e2e8f0;
+}
+
+/* Auth link text */
+.auth-link-text {
+  color: #718096;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+/* Auth link */
+.auth-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+  color: #5a6fd8;
+  text-decoration: underline;
+}
+
+/* Auth help text */
+.auth-help-text {
+  color: #a0aec0;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Auth footer */
+.auth-footer {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* ===== DASHBOARD STYLES ===== */
+
+/* Stats cards */
+.stats-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-number {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.stats-label {
+  font-size: 0.875rem;
+  color: #718096;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* Booking cards */
+.booking-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.booking-service {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0;
+}
+
+.booking-vendor,
+.booking-date,
+.booking-price {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #718096;
+}
+
+/* ===== PROFILE STYLES ===== */
+
+/* Profile cards */
+.profile-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Profile form groups */
+.profile-form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Profile labels */
+.profile-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Profile inputs */
+.profile-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: white;
+  transition: all 0.3s ease;
+  min-height: 3rem;
+}
+
+.profile-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.profile-input:hover {
+  border-color: #667eea;
+}
+
+/* Profile help text */
+.profile-help-text {
+  color: #a0aec0;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Profile button wrapper */
+.profile-button-wrapper {
+  margin: 2rem 0;
+}
+
+/* Profile button */
+.profile-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== SERVICES STYLES ===== */
+
+/* Filters card */
+.filters-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Filter labels */
+.filter-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Filter inputs */
+.filter-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-input:hover {
+  border-color: #667eea;
+}
+
+/* Filter button */
+.filter-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.filter-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Service cards */
+.service-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.service-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0;
+}
+
+.service-description {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.service-details {
+  margin-bottom: 1.5rem;
+}
+
+.service-vendor,
+.service-location,
+.service-price {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #718096;
+}
+
+.service-price {
+  font-weight: 600;
+  color: #28a745;
+}
+
+.service-book-button {
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.service-book-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Extra small devices (phones, 576px and down) */
+@media (max-width: 575.98px) {
+  .auth-page,
+  .dashboard-page,
+  .profile-page,
+  .services-page {
+    padding: 0.5rem;
+  }
+  
+  .auth-card-body {
+    padding: 1.5rem;
+  }
+  
+  .hero-section {
+    padding: 2rem 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .auth-title {
+    font-size: 2rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 1rem;
+  }
+  
+  .auth-card-title {
+    font-size: 1.5rem;
+  }
+  
+  .auth-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .auth-card-body {
+    padding: 2rem;
+  }
+  
+  .hero-section {
+    padding: 2.5rem 0;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .auth-card-body {
+    padding: 2.5rem;
+  }
+  
+  .hero-section {
+    padding: 3rem 0;
+  }
+  
+  .auth-title {
+    font-size: 2.5rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 1.125rem;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .auth-card-body {
+    padding: 3rem;
+  }
+  
+  .hero-section {
+    padding: 3.5rem 0;
+  }
+  
+  .auth-title {
+    font-size: 3rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .auth-card-title {
+    font-size: 2rem;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .auth-card-body {
+    padding: 3rem;
+  }
+  
+  .hero-section {
+    padding: 4rem 0;
+  }
+  
+  .auth-title {
+    font-size: 3.5rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .auth-card-title {
+    font-size: 2rem;
+  }
+}
+
+/* Ultra wide screens (1400px and up) */
+@media (min-width: 1400px) {
+  .auth-card-body {
+    padding: 3.5rem;
+  }
+  
+  .hero-section {
+    padding: 4.5rem 0;
+  }
+}
+
+/* ===== HOVER EFFECTS ===== */
+
+/* Smooth transitions for all interactive elements */
+.auth-input,
+.auth-button,
+.auth-link,
+.profile-input,
+.profile-button,
+.filter-input,
+.filter-button,
+.service-book-button {
+  transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.auth-input:focus,
+.auth-button:focus,
+.auth-link:focus,
+.profile-input:focus,
+.profile-button:focus,
+.filter-input:focus,
+.filter-button:focus,
+.service-book-button:focus {
+  outline: none;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card,
+.profile-card,
+.filters-card,
+.dashboard-bookings-section,
+.widgets-section,
+.service-card,
+.booking-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .auth-page,
+  .dashboard-page,
+  .profile-page,
+  .services-page {
+    background: white !important;
+  }
+  
+  .auth-card,
+  .profile-card,
+  .filters-card,
+  .service-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
