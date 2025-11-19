@@ -56,7 +56,9 @@ const Dashboard = () => {
       await clientAPI.cancelBooking(bookingId);
       fetchBookings(); // Refresh the list
     } catch (err) {
-      setError('Failed to cancel booking');
+      // info
+      console.log("Error while try to cancel the booking : ", err.response.data.error);
+      alert("you can not cancel this booking")
     }
   };
 
@@ -107,21 +109,11 @@ const Dashboard = () => {
 
         {/* Error Alert */}
         {error && (
-          <Row className="mb-4">
+          <Row className="">
             <Col xs={12}>
               <Alert variant="danger" dismissible onClose={() => setError('')}>
-                <h5>Error Loading Dashboard</h5>
                 <p>{error}</p>
-                <hr />
-                <p className="mb-0">
-                  <strong>Troubleshooting:</strong>
-                  <br />
-                  1. Make sure your backend server is running on http://localhost:5000
-                  <br />
-                  2. Check the browser console for more details
-                  <br />
-                  3. Try refreshing the page
-                </p>
+
               </Alert>
             </Col>
           </Row>
@@ -192,11 +184,12 @@ const Dashboard = () => {
                 ) : (
                   <Row>
                     {bookingsArray.map((booking) => (
+
                       <Col xs={12} md={6} lg={4} key={booking._id || booking.booking_id} className="mb-3">
                         <Card className="booking-card h-100">
                           <Card.Body>
                             <div className="d-flex justify-content-between align-items-start mb-2">
-                              <h5 className="booking-service">{booking.service?.name || booking.service?.title || 'Unknown Service'}</h5>
+                              <h5 className="booking-service">{booking.service?.name || booking.service?.title || 'Service no more exists'}</h5>
                               {getStatusBadge(booking.status)}
                             </div>
                             <p className="booking-vendor text-muted">

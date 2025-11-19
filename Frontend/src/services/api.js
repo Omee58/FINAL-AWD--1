@@ -477,11 +477,13 @@ export const formatPrice = (price) => {
 };
 
 export const getStatusBadge = (status) => {
+  console.log("Status is : ", status);
+  
   // Handle undefined, null, or empty status
   if (!status || typeof status !== 'string') {
     return {
-      variant: 'secondary',
-      text: 'Unknown'
+      variant: 'warning',
+      text: 'Pending'
     };
   }
 

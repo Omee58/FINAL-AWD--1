@@ -26,10 +26,6 @@ const AdminNavbar = () => {
               <i className="fas fa-tachometer-alt me-1"></i>
               Dashboard
             </Nav.Link>
-            <Nav.Link as={Link} to="/admin/profile">
-              <i className="fas fa-user me-1"></i>
-              Profile
-            </Nav.Link>
             <Nav.Link as={Link} to="/admin/users">
               <i className="fas fa-users me-1"></i>
               All Users
@@ -37,6 +33,10 @@ const AdminNavbar = () => {
             <Nav.Link as={Link} to="/admin/bookings">
               <i className="fas fa-calendar-alt me-1"></i>
               All Bookings
+            </Nav.Link>
+            <Nav.Link as={Link} to="/admin/profile">
+              <i className="fas fa-user me-1"></i>
+              Profile
             </Nav.Link>
           </Nav>
 

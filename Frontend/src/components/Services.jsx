@@ -74,16 +74,14 @@ const Services = () => {
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedService) return;
 
     // Get form data directly from the form elements
     const form = e.target;
     const bookingDateInput = form.querySelector('input[name="bookingDate"]');
-    const additionalNotesInput = form.querySelector('textarea[name="additionalNotes"]');
-    
+
     const bookingDate = bookingDateInput?.value;
-    const additionalNotes = additionalNotesInput?.value;
 
     if (!bookingDate) {
       setBookingError('Please select a booking date');
@@ -99,7 +97,7 @@ const Services = () => {
       setBookingLoading(true);
       setBookingError('');
       setBookingSuccess('');
-      
+
       // Prepare booking data according to backend API requirements
       const bookingData = {
         serviceId: selectedService._id || selectedService.service_id,
@@ -111,9 +109,9 @@ const Services = () => {
       console.log('Services: Sending booking data:', bookingData);
       console.log('Services: Data type:', typeof bookingData);
       console.log('Services: Data stringified:', JSON.stringify(bookingData));
-      
+
       const result = await clientAPI.bookService(bookingData);
-      
+
       if (result.success) {
         setBookingSuccess('Service booked successfully!');
         setShowBookingModal(false);
@@ -141,7 +139,7 @@ const Services = () => {
 
   // Ensure services is always an array for mapping
   const servicesArray = Array.isArray(services) ? services : [];
-  
+
   console.log('Services: Rendering with loading:', loading, 'error:', error, 'services:', servicesArray);
 
   // Only show full-page spinner on first load
@@ -376,7 +374,7 @@ const Services = () => {
                 {bookingError}
               </Alert>
             )}
-            
+
             {bookingSuccess && (
               <Alert variant="success" dismissible onClose={() => setBookingSuccess('')}>
                 {bookingSuccess}
@@ -390,7 +388,7 @@ const Services = () => {
                 <p><strong>Vendor:</strong> {selectedService.vendor?.full_name || 'Unknown Vendor'}</p>
                 <p><strong>Price:</strong> ₹{selectedService.price || 'Price not available'}</p>
                 <p><strong>Location:</strong> {selectedService.location || 'Location not specified'}</p>
-                
+
                 <Form onSubmit={handleBookingSubmit}>
                   <Form.Group className="mb-3">
                     <Form.Label>Booking Date</Form.Label>
@@ -401,20 +399,10 @@ const Services = () => {
                       min={new Date().toISOString().split('T')[0]}
                     />
                   </Form.Group>
-                  
-                  <Form.Group className="mb-3">
-                    <Form.Label>Additional Notes (Optional)</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      name="additionalNotes"
-                      rows={3}
-                      placeholder="Any special requirements or notes..."
-                    />
-                  </Form.Group>
-                  
+
                   <div className="d-grid">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       variant="primary"
                       disabled={bookingLoading}
                     >

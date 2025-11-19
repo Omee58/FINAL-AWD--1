@@ -6,7 +6,7 @@ const VendorServices = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Add/Edit Service Modal States
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
@@ -47,7 +47,7 @@ const VendorServices = () => {
       setServices(servicesData);
     } catch (err) {
       console.error('VendorServices: Error fetching services:', err);
-      
+
       // Handle 403 Forbidden (unverified vendor)
       if (err.response?.status === 403) {
         setError('Your vendor account needs to be verified by an administrator before you can manage services.');
@@ -68,6 +68,7 @@ const VendorServices = () => {
       price: '',
       category: '',
       location: '',
+      status: "",
       images: []
     });
     setShowServiceModal(true);
@@ -79,6 +80,7 @@ const VendorServices = () => {
     setEditingService(service);
     setServiceForm({
       title: service.title || '',
+      status: service.status || '',
       description: service.description || '',
       price: service.price || '',
       category: service.category || '',
@@ -106,7 +108,7 @@ const VendorServices = () => {
 
   const handleServiceSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!serviceForm.title || !serviceForm.description || !serviceForm.price || !serviceForm.category || !serviceForm.location) {
       setServiceError('All fields are required');
@@ -176,12 +178,15 @@ const VendorServices = () => {
     }
   };
 
+  console.log(serviceForm);
+
+
   const getStatusBadge = (status) => {
     const statusClasses = {
       'active': 'success',
       'inactive': 'secondary'
     };
-    
+
     return {
       variant: statusClasses[status] || 'secondary',
       text: status.charAt(0).toUpperCase() + status.slice(1)
@@ -220,21 +225,11 @@ const VendorServices = () => {
 
         {/* Error Alert */}
         {error && (
-          <Row className="mb-4">
+          <Row className="">
             <Col xs={12}>
               <Alert variant="danger" dismissible onClose={() => setError('')}>
-                <h5>Error Loading Services</h5>
                 <p>{error}</p>
-                <hr />
-                <p className="mb-0">
-                  <strong>Troubleshooting:</strong>
-                  <br />
-                  1. Make sure your backend server is running on http://localhost:5000
-                  <br />
-                  2. Check the browser console for more details
-                  <br />
-                  3. Try refreshing the page
-                </p>
+
               </Alert>
             </Col>
           </Row>
@@ -297,7 +292,7 @@ const VendorServices = () => {
                           </p>
                           <p className="service-price">
                             <i className="fas fa-rupee-sign me-2"></i>
-                            <strong>Price:</strong> {formatPrice(service.price)}
+                            {formatPrice(service.price)}
                           </p>
                         </div>
                         <div className="d-flex justify-content-between mt-3">
@@ -340,7 +335,7 @@ const VendorServices = () => {
                 {serviceError}
               </Alert>
             )}
-            
+
             {serviceSuccess && (
               <Alert variant="success" dismissible onClose={() => setServiceSuccess('')}>
                 {serviceSuccess}
@@ -427,11 +422,29 @@ const VendorServices = () => {
                     />
                   </Form.Group>
                 </Col>
+
+                {editingService ?
+                  <Col xs={12} md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Status :</Form.Label>
+                      <Form.Select
+                        name="status"
+                        value={serviceForm.status}
+                        onChange={handleServiceFormChange}
+                        required
+                      >
+                        <option value="" disabled>Select status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  : ""}
               </Row>
 
               <div className="d-grid gap-2">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   variant="primary"
                   disabled={serviceLoading}
                 >
@@ -444,7 +457,7 @@ const VendorServices = () => {
                     editingService ? 'Update Service' : 'Add Service'
                   )}
                 </Button>
-                <Button 
+                <Button
                   variant="outline-secondary"
                   onClick={() => setShowServiceModal(false)}
                   disabled={serviceLoading}
@@ -474,14 +487,14 @@ const VendorServices = () => {
                 <p><strong>Service:</strong> {deletingService.title}</p>
                 <p><strong>Category:</strong> {deletingService.category}</p>
                 <p><strong>Price:</strong> {formatPrice(deletingService.price)}</p>
-                
+
                 <div className="alert alert-warning">
                   <i className="fas fa-exclamation-triangle me-2"></i>
                   <strong>Warning:</strong> This action cannot be undone. If this service has active bookings, it cannot be deleted.
                 </div>
-                
+
                 <div className="d-grid gap-2">
-                  <Button 
+                  <Button
                     variant="danger"
                     onClick={confirmDeleteService}
                     disabled={deleteLoading}
@@ -495,7 +508,7 @@ const VendorServices = () => {
                       'Delete Service'
                     )}
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline-secondary"
                     onClick={() => setShowDeleteModal(false)}
                     disabled={deleteLoading}

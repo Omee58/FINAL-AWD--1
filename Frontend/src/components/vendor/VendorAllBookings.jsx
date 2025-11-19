@@ -388,7 +388,7 @@ const VendorAllBookings = () => {
                                 <strong>Date:</strong> {formatDate(booking.booking_date)}
                               </p>
                               <p className="booking-price">
-                              <i class="fa-solid fa-indian-rupee-sign me-2"></i>
+                              <i className="fa-solid fa-indian-rupee-sign me-2"></i>
                                 <strong>Amount:</strong> {formatPrice(booking.total_amount)}
                               </p>
                               <p className="booking-contact">

@@ -42,8 +42,12 @@ const Login = () => {
         // AuthContext will handle the redirect based on user role
         console.log('Login: Login successful, AuthContext will handle redirect');
       } else {
-        setError(result.message || result.error);
+        setError(result.message || result.error || "invalid Email or Password");
         // alert(result.message || result.error)
+        setFormData(prev => ({
+          ...prev,
+          password: ""
+        }));
       }
     } catch (err) {
       setError('Login failed. Please try again.');

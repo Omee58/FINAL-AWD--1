@@ -246,7 +246,8 @@ const VendorDashboard = () => {
             <Card className="stats-card text-center">
               <Card.Body>
                 <div className="stats-number">
-                  ₹{bookedServices.reduce((total, booking) => total + (booking.total_amount || 0), 0).toLocaleString()}
+                  {/* info */}
+                  ₹{bookedServices.filter(b=>b.status!=="cancelled").reduce((total, booking) => total + (booking.total_amount || 0), 0).toLocaleString()}
                 </div>
                 <div className="stats-label">Active Booking Value</div>
               </Card.Body>
