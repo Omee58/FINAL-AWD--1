@@ -23,6 +23,7 @@ import AdminProfile from './components/admin/AdminProfile';
 import AdminAllUsers from './components/admin/AdminAllUsers';
 import AdminAllBookings from './components/admin/AdminAllBookings';
 import { useNavigate } from "react-router-dom";
+import ChatbotWidget from './components/ChatbotWidget';
 
 // Import Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -193,6 +194,7 @@ function App() {
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
+        <ChatbotWidget />
       </Router>
     </AuthProvider>
   );

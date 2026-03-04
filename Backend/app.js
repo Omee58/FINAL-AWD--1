@@ -7,8 +7,6 @@ const authRoutes = require('./routes/auth.routes');
 const clientRoutes = require('./routes/client.routes');
 const vendorRoutes = require('./routes/vendor.routes');
 const adminRoutes = require('./routes/admin.routes');
-const subscriptionPlansRouter = require('./routes/subscriptionPlans');
-
 const app = express();
 
 // Middleware
@@ -42,7 +40,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/subscription-plans', subscriptionPlansRouter);
 
 // 404 handler
 app.use('*', (req, res) => {
