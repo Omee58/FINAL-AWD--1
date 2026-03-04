@@ -5,41 +5,29 @@ const {
   getAdminProfile,
   getVendorRequests,
   acceptVendorRequest,
+  rejectVendorRequest,
   getAllUsers,
-  getAllBookings
+  getAllBookings,
+  getStats
 } = require('../controllers/admin.controller');
 const { updateProfile } = require('../controllers/auth.controller');
 
-// Middleware to check if user is an admin
 const adminMiddleware = (req, res, next) => {
   if (req.user.role !== 'admin') {
-    return res.status(403).json({
-      success: false,
-      message: 'Access denied. Admin role required.'
-    });
+    return res.status(403).json({ success: false, message: 'Access denied. Admin role required.' });
   }
   next();
 };
 
-// All routes require authentication
 router.use(authMiddleware);
 
-// 1. Get logged-in admin details
 router.get('/profile', adminMiddleware, getAdminProfile);
-
-// 2. Get vendor requests (unverified vendors)
-router.get('/vendor-requests', adminMiddleware, getVendorRequests);
-
-// 3. Accept vendor request
-router.patch('/vendor-requests/:vendorId/accept', adminMiddleware, acceptVendorRequest);
-
-// 4. Get all users (clients and vendors)
-router.get('/users', adminMiddleware, getAllUsers);
-
-// 5. Get all bookings (all statuses)
-router.get('/bookings', adminMiddleware, getAllBookings);
-
-// 6. Update admin profile (unified endpoint for all users)
 router.put('/profile', adminMiddleware, updateProfile);
+router.get('/vendor-requests', adminMiddleware, getVendorRequests);
+router.patch('/vendor-requests/:vendorId/accept', adminMiddleware, acceptVendorRequest);
+router.patch('/vendor-requests/:vendorId/reject', adminMiddleware, rejectVendorRequest);
+router.get('/users', adminMiddleware, getAllUsers);
+router.get('/bookings', adminMiddleware, getAllBookings);
+router.get('/stats', adminMiddleware, getStats);
 
 module.exports = router;

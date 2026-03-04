@@ -37,6 +37,20 @@ const serviceSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Service location is required'],
     trim: true
+  },
+  images: {
+    type: [String],
+    default: []
+  },
+  avg_rating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  review_count: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

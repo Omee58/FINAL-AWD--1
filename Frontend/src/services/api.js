@@ -1,104 +1,61 @@
 import axios from 'axios';
 
-// API Configuration
-const API_BASE_URL = 'http://localhost:5000/api';
-const CLIENT_API_URL = `${API_BASE_URL}/client`;
-const AUTH_API_URL = `${API_BASE_URL}/auth`;
-const VENDOR_API_URL = `${API_BASE_URL}/vendor`;
-const ADMIN_API_URL = `${API_BASE_URL}/admin`;
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const UPLOAD_URL = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5000';
 
-// Create axios instance with default config
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-// Response interceptor to handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log('API Interceptor: Error response:', error.response?.status, error.response?.data);
-
-    // Only handle 401 Unauthorized (authentication errors)
-    // 403 Forbidden (authorization errors) should be handled by components
     if (error.response?.status === 401) {
-      console.log('API Interceptor: 401 Unauthorized, logging out user');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // window.location.href = '/login';
-    } else if (error.response?.status === 403) {
-      console.log('API Interceptor: 403 Forbidden, letting component handle it');
     }
     return Promise.reject(error);
   }
 );
 
-// Utility functions
+// ─── Auth Utilities ──────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem('token');
 export const setToken = (token) => localStorage.setItem('token', token);
 export const removeToken = () => localStorage.removeItem('token');
-
-export const getUser = () => {
-  const user = localStorage.getItem('user');
-  return user ? JSON.parse(user) : null;
-};
-
+export const getUser = () => { const u = localStorage.getItem('user'); return u ? JSON.parse(u) : null; };
 export const setUser = (user) => localStorage.setItem('user', JSON.stringify(user));
 export const removeUser = () => localStorage.removeItem('user');
+export const isAuthenticated = () => !!getToken();
 
-export const isAuthenticated = () => getToken() !== null;
-
-// Auth API Functions
+// ─── Auth API ────────────────────────────────────────────────────────────────
 export const authAPI = {
   login: async (credentials) => {
-    const response = await api.post(`${AUTH_API_URL}/login`, credentials);
-    return response.data;
+    const res = await api.post('/auth/login', credentials);
+    return res.data;
   },
-
   register: async (userData) => {
-    const response = await api.post(`${AUTH_API_URL}/register`, userData);
-    return response.data;
+    const res = await api.post('/auth/register', userData);
+    return res.data;
   },
-
-  getProfile: async () => {
-    const response = await api.get(`${AUTH_API_URL}/profile`);
-    return response.data;
+  getMe: async () => {
+    const res = await api.get('/auth/me');
+    return res.data;
   },
-
   updateProfile: async (profileData) => {
-    try {
-      console.log('API: Updating profile with data:', profileData);
-      console.log('API: Using endpoint:', `${AUTH_API_URL}/profile`);
-      const response = await api.put(`${AUTH_API_URL}/profile`, profileData);
-      console.log('API: Profile update response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error updating profile:', error);
-      throw error;
-    }
+    const res = await api.put('/auth/profile', profileData);
+    return res.data;
   },
-
   updatePassword: async (passwordData) => {
-    const response = await api.put(`${AUTH_API_URL}/password`, passwordData);
-    return response.data;
+    const res = await api.put('/auth/password', passwordData);
+    return res.data;
   },
-
   logout: () => {
     removeToken();
     removeUser();
@@ -106,398 +63,165 @@ export const authAPI = {
   }
 };
 
-// Client API Functions
+// ─── Client API ──────────────────────────────────────────────────────────────
 export const clientAPI = {
   getBookings: async () => {
-    try {
-      console.log('API: Fetching bookings from:', `${CLIENT_API_URL}/bookings`);
-      const response = await api.get(`${CLIENT_API_URL}/bookings`);
-      console.log('API: Bookings response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.bookings) {
-        return { data: response.data.bookings };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else if (response.data && response.data.data) {
-        return { data: response.data.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching bookings:', error);
-      throw error;
-    }
+    const res = await api.get('/client/bookings');
+    if (res.data?.bookings) return { data: res.data.bookings };
+    if (Array.isArray(res.data)) return { data: res.data };
+    if (res.data?.data) return { data: res.data.data };
+    return { data: [] };
   },
-
   cancelBooking: async (bookingId) => {
-    try {
-      console.log('API: Cancelling booking:', bookingId);
-      const response = await api.patch(`${CLIENT_API_URL}/bookings/${bookingId}/cancel`);
-      console.log('API: Cancel booking response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error cancelling booking:', error);
-      throw error;
-    }
+    const res = await api.patch(`/client/bookings/${bookingId}/cancel`);
+    return res.data;
   },
-
   getServices: async (filters = {}) => {
-    try {
-      console.log('API: Fetching services with filters:', filters);
-      const response = await api.get(`${CLIENT_API_URL}/services`, { params: filters });
-      console.log('API: Services response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.services) {
-        return { data: response.data.services };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else if (response.data && response.data.data) {
-        return { data: response.data.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching services:', error);
-      throw error;
-    }
+    const res = await api.get('/client/services', { params: filters });
+    if (res.data?.services) return { data: res.data.services };
+    if (Array.isArray(res.data)) return { data: res.data };
+    if (res.data?.data) return { data: res.data.data };
+    return { data: [] };
   },
-
   bookService: async (bookingData) => {
-    try {
-      console.log('API: Booking service with data:', bookingData);
-      console.log('API: Data type:', typeof bookingData);
-      console.log('API: Data stringified:', JSON.stringify(bookingData));
-
-      const response = await api.post(`${CLIENT_API_URL}/book-service`, bookingData);
-      console.log('API: Book service response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error booking service:', error);
-      console.error('API: Error response:', error.response?.data);
-      throw error;
-    }
+    const res = await api.post('/client/book-service', bookingData);
+    return res.data;
   }
 };
 
-// Vendor API Functions
+// ─── Vendor API ──────────────────────────────────────────────────────────────
 export const vendorAPI = {
-  // Get vendor profile
   getProfile: async () => {
-    try {
-      console.log('API: Fetching vendor profile from:', `${VENDOR_API_URL}/profile`);
-      const response = await api.get(`${VENDOR_API_URL}/profile`);
-      console.log('API: Vendor profile response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error fetching vendor profile:', error);
-      throw error;
-    }
+    const res = await api.get('/vendor/profile');
+    return res.data;
   },
-
-  // Get booking requests (pending bookings)
   getBookingRequests: async () => {
-    try {
-      console.log('API: Fetching booking requests from:', `${VENDOR_API_URL}/booking-requests`);
-      const response = await api.get(`${VENDOR_API_URL}/booking-requests`);
-      console.log('API: Booking requests response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.pending_bookings) {
-        return { data: response.data.data.pending_bookings };
-      } else if (response.data && response.data.pending_bookings) {
-        return { data: response.data.pending_bookings };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching booking requests:', error);
-      throw error;
-    }
+    const res = await api.get('/vendor/booking-requests');
+    if (res.data?.data?.pending_bookings) return { data: res.data.data.pending_bookings };
+    if (res.data?.pending_bookings) return { data: res.data.pending_bookings };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
   },
-
-  // Get booked services (current/future bookings)
   getBookedServices: async () => {
-    try {
-      console.log('API: Fetching booked services from:', `${VENDOR_API_URL}/booked-services`);
-      const response = await api.get(`${VENDOR_API_URL}/booked-services`);
-      console.log('API: Booked services response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.booked_services) {
-        return { data: response.data.data.booked_services };
-      } else if (response.data && response.data.booked_services) {
-        return { data: response.data.booked_services };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching booked services:', error);
-      throw error;
-    }
+    const res = await api.get('/vendor/booked-services');
+    if (res.data?.data?.booked_services) return { data: res.data.data.booked_services };
+    if (res.data?.booked_services) return { data: res.data.booked_services };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
   },
-
-  // Get all bookings (for all bookings page)
   getAllBookings: async () => {
-    try {
-      console.log('API: Fetching all bookings from:', `${VENDOR_API_URL}/bookings`);
-      const response = await api.get(`${VENDOR_API_URL}/bookings`);
-      console.log('API: All bookings response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.bookings) {
-        return { data: response.data.data.bookings };
-      } else if (response.data && response.data.bookings) {
-        return { data: response.data.bookings };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching all bookings:', error);
-      throw error;
-    }
+    const res = await api.get('/vendor/bookings');
+    if (res.data?.data?.bookings) return { data: res.data.data.bookings };
+    if (res.data?.bookings) return { data: res.data.bookings };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
   },
-
-  // Get vendor's services
   getMyServices: async () => {
-    try {
-      console.log('API: Fetching vendor services from:', `${VENDOR_API_URL}/my-services`);
-      const response = await api.get(`${VENDOR_API_URL}/my-services`);
-      console.log('API: Vendor services response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.services) {
-        return { data: response.data.data.services };
-      } else if (response.data && response.data.services) {
-        return { data: response.data.services };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching vendor services:', error);
-      throw error;
-    }
+    const res = await api.get('/vendor/my-services');
+    if (res.data?.data?.services) return { data: res.data.data.services };
+    if (res.data?.services) return { data: res.data.services };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
   },
-
-  // Add new service
-  addService: async (serviceData) => {
-    try {
-      console.log('API: Adding new service to:', `${VENDOR_API_URL}/services`);
-      const response = await api.post(`${VENDOR_API_URL}/services`, serviceData);
-      console.log('API: Add service response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error adding service:', error);
-      throw error;
-    }
+  addService: async (formData) => {
+    const res = await api.post('/vendor/services', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return res.data;
   },
-
-  // Update service
-  updateService: async (serviceId, serviceData) => {
-    try {
-      console.log('API: Updating service:', `${VENDOR_API_URL}/services/${serviceId}`);
-      const response = await api.put(`${VENDOR_API_URL}/services/${serviceId}`, serviceData);
-      console.log('API: Update service response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error updating service:', error);
-      throw error;
-    }
+  updateService: async (serviceId, formData) => {
+    const res = await api.put(`/vendor/services/${serviceId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return res.data;
   },
-
-  // Delete service
   deleteService: async (serviceId) => {
-    try {
-      console.log('API: Deleting service:', `${VENDOR_API_URL}/services/${serviceId}`);
-      const response = await api.delete(`${VENDOR_API_URL}/services/${serviceId}`);
-      console.log('API: Delete service response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error deleting service:', error);
-      throw error;
-    }
+    const res = await api.delete(`/vendor/services/${serviceId}`);
+    return res.data;
   },
-
-  // Change booking status
   changeBookingStatus: async (bookingId, status) => {
-    try {
-      console.log('API: Changing booking status:', `${VENDOR_API_URL}/bookings/${bookingId}/status`);
-      console.log('API: Booking ID:', bookingId);
-      console.log('API: New status:', status);
-      console.log('API: Request payload:', { status });
-
-      const response = await api.patch(`${VENDOR_API_URL}/bookings/${bookingId}/status`, { status });
-      console.log('API: Change booking status response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error changing booking status:', error);
-      console.error('API: Error response:', error.response?.data);
-      console.error('API: Error status:', error.response?.status);
-      throw error;
-    }
+    const res = await api.patch(`/vendor/bookings/${bookingId}/status`, { status });
+    return res.data;
+  },
+  getEarningsStats: async () => {
+    const res = await api.get('/vendor/booked-services');
+    return res.data;
   }
 };
 
-// Admin API Functions
+// ─── Admin API ───────────────────────────────────────────────────────────────
 export const adminAPI = {
-  // Get admin profile
   getProfile: async () => {
-    try {
-      console.log('API: Fetching admin profile from:', `${ADMIN_API_URL}/profile`);
-      const response = await api.get(`${ADMIN_API_URL}/profile`);
-      console.log('API: Admin profile response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error fetching admin profile:', error);
-      throw error;
-    }
+    const res = await api.get('/admin/profile');
+    return res.data;
   },
-
-
-
-  // Get vendor requests (unverified vendors)
   getVendorRequests: async () => {
-    try {
-      console.log('API: Fetching vendor requests from:', `${ADMIN_API_URL}/vendor-requests`);
-      const response = await api.get(`${ADMIN_API_URL}/vendor-requests`);
-      console.log('API: Vendor requests response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.vendor_requests) {
-        return { data: response.data.data.vendor_requests };
-      } else if (response.data && response.data.vendor_requests) {
-        return { data: response.data.vendor_requests };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching vendor requests:', error);
-      throw error;
-    }
+    const res = await api.get('/admin/vendor-requests');
+    if (res.data?.data?.vendor_requests) return { data: res.data.data.vendor_requests };
+    if (res.data?.vendor_requests) return { data: res.data.vendor_requests };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
   },
-
-  // Accept vendor request
   acceptVendorRequest: async (vendorId) => {
-    try {
-      console.log('API: Accepting vendor request:', `${ADMIN_API_URL}/vendor-requests/${vendorId}/accept`);
-      const response = await api.patch(`${ADMIN_API_URL}/vendor-requests/${vendorId}/accept`);
-      console.log('API: Accept vendor request response:', response);
-      return response.data;
-    } catch (error) {
-      console.error('API: Error accepting vendor request:', error);
-      throw error;
-    }
+    const res = await api.patch(`/admin/vendor-requests/${vendorId}/accept`);
+    return res.data;
   },
-
-  // Get all users with filtering
+  rejectVendorRequest: async (vendorId, reason) => {
+    const res = await api.patch(`/admin/vendor-requests/${vendorId}/reject`, { reason });
+    return res.data;
+  },
   getAllUsers: async (filters = {}) => {
-    try {
-      console.log('API: Fetching all users with filters:', filters);
-      const response = await api.get(`${ADMIN_API_URL}/users`, { params: filters });
-      console.log('API: All users response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.users) {
-        return {
-          data: response.data.data.users,
-        };
-      } else if (response.data && response.data.users) {
-        return {
-          data: response.data.users,
-        };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching all users:', error);
-      throw error;
-    }
+    const res = await api.get('/admin/users', { params: filters });
+    if (res.data?.data?.users) return { data: res.data.data.users };
+    if (res.data?.users) return { data: res.data.users };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
   },
-
-  // Get all bookings with filtering
   getAllBookings: async (filters = {}) => {
-    try {
-      console.log('API: Fetching all bookings with filters:', filters);
-      const response = await api.get(`${ADMIN_API_URL}/bookings`, { params: filters });
-      console.log('API: All bookings response:', response);
-
-      // Handle different response formats
-      if (response.data && response.data.data && response.data.data.bookings) {
-        return {
-          data: response.data.data.bookings,
-          pagination: response.data.data.pagination,
-          total_revenue: response.data.data.total_revenue,
-          status_count: response.data.data.status_count
-        };
-      } else if (response.data && response.data.bookings) {
-        return {
-          data: response.data.bookings,
-          pagination: response.data.pagination
-        };
-      } else if (response.data && Array.isArray(response.data)) {
-        return { data: response.data };
-      } else {
-        return { data: [] };
-      }
-    } catch (error) {
-      console.error('API: Error fetching all bookings:', error);
-      throw error;
-    }
+    const res = await api.get('/admin/bookings', { params: filters });
+    if (res.data?.data?.bookings) return {
+      data: res.data.data.bookings,
+      pagination: res.data.data.pagination,
+      total_revenue: res.data.data.total_revenue,
+      status_count: res.data.data.status_count
+    };
+    if (res.data?.bookings) return { data: res.data.bookings };
+    if (Array.isArray(res.data)) return { data: res.data };
+    return { data: [] };
+  },
+  getStats: async () => {
+    const res = await api.get('/admin/stats');
+    return res.data;
   }
 };
 
-// UI Helper Functions
-export const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+// ─── Review API ──────────────────────────────────────────────────────────────
+export const reviewAPI = {
+  addReview: async (serviceId, reviewData) => {
+    const res = await api.post(`/reviews/${serviceId}`, reviewData);
+    return res.data;
+  },
+  getServiceReviews: async (serviceId) => {
+    const res = await api.get(`/reviews/${serviceId}`);
+    return res.data;
+  },
+  getReviewableBookings: async () => {
+    const res = await api.get('/reviews/my-reviewable');
+    return res.data;
+  }
 };
 
-export const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR'
-  }).format(price);
-};
+// ─── UI Helpers ──────────────────────────────────────────────────────────────
+export const formatDate = (dateString) =>
+  new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+export const formatPrice = (price) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(price);
 
 export const getStatusBadge = (status) => {
-  console.log("Status is : ", status);
-  
-  // Handle undefined, null, or empty status
-  if (!status || typeof status !== 'string') {
-    return {
-      variant: 'warning',
-      text: 'Pending'
-    };
-  }
-
-  const statusClasses = {
-    'pending': 'warning',
-    'confirmed': 'success',
-    'cancelled': 'danger',
-    'completed': 'info'
-  };
-
-  return {
-    variant: statusClasses[status] || 'secondary',
-    text: status.charAt(0).toUpperCase() + status.slice(1)
-  };
+  if (!status || typeof status !== 'string') return { variant: 'warning', text: 'Pending' };
+  const map = { pending: 'warning', confirmed: 'success', cancelled: 'danger', completed: 'info' };
+  return { variant: map[status] || 'secondary', text: status.charAt(0).toUpperCase() + status.slice(1) };
 };
 
 export default api;

@@ -24,7 +24,6 @@ const getVendorProfile = async (req, res) => {
     }
 
     const vendor = await User.findById(vendorId);
-    console.log("Vendor profile : ", vendor);
 
     res.status(200).json({
       success: true,
@@ -146,8 +145,6 @@ const getBookedServices = async (req, res) => {
       .populate('service', 'title description price category images')
       .sort({ booking_date: 1 });
 
-      console.log(bookedServices);
-      
     res.status(200).json({
   success: true,
   data: {
@@ -209,7 +206,7 @@ const addService = async (req, res) => {
       });
     }
 
-    const { title, description, price, category, location, images } = req.body;
+    const { title, description, price, category, location } = req.body;
 
     // Validate required fields
     if (!title || !description || !price || !category || !location) {
@@ -227,6 +224,11 @@ const addService = async (req, res) => {
       });
     }
 
+    // Handle uploaded images
+    const uploadedImages = req.files
+      ? req.files.map(f => `/uploads/${f.filename}`)
+      : [];
+
     // Create new service
     const service = await Service.create({
       title,
@@ -234,7 +236,7 @@ const addService = async (req, res) => {
       price,
       category: category.toLowerCase(),
       location,
-      images: images || [],
+      images: uploadedImages,
       vendor: vendorId,
       status: 'active'
     });
@@ -412,7 +414,7 @@ const updateService = async (req, res) => {
   try {
     const vendorId = req.user._id;
     const { serviceId } = req.params;
-    const { title, description, price, category, location, images, status } = req.body;
+    const { title, description, price, category, location, status } = req.body;
 
     // Verify user is a vendor
     if (req.user.role !== 'vendor') {
@@ -447,8 +449,10 @@ const updateService = async (req, res) => {
     if (price !== undefined) updateData.price = price;
     if (category) updateData.category = category.toLowerCase();
     if (location) updateData.location = location;
-    if (images !== undefined) updateData.images = images;
     if (status) updateData.status = status;
+    if (req.files && req.files.length > 0) {
+      updateData.images = req.files.map(f => `/uploads/${f.filename}`);
+    }
 
     // Validate price if being updated
     if (price !== undefined && price <= 0) {

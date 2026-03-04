@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppNavbar from './components/Navbar';
@@ -22,179 +24,118 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AdminProfile from './components/admin/AdminProfile';
 import AdminAllUsers from './components/admin/AdminAllUsers';
 import AdminAllBookings from './components/admin/AdminAllBookings';
-import { useNavigate } from "react-router-dom";
+
+// Pages
+import LandingPage from './pages/LandingPage';
+import ServiceDetail from './pages/ServiceDetail';
+import NotFound from './pages/NotFound';
 import ChatbotWidget from './components/ChatbotWidget';
 
-// Import Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-let globalNavigate;
+const ClientLayout = ({ children }) => (
+  <>
+    <AppNavbar />
+    {children}
+    <Footer />
+  </>
+);
 
-function NavigationBinder() {
-  globalNavigate = useNavigate();
-  return null;
-}
+const VendorLayout = ({ children }) => (
+  <>
+    <VendorNavbar />
+    {children}
+    <Footer />
+  </>
+);
 
-export { globalNavigate };
+const AdminLayout = ({ children }) => (
+  <>
+    <AdminNavbar />
+    {children}
+    <Footer />
+  </>
+);
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <NavigationBinder />
         <div className="App">
           <Routes>
-            {/* Public Routes */}
+            {/* Public */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/services/:serviceId" element={<><AppNavbar /><ServiceDetail /><Footer /></>} />
 
-            {/* Client Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <>
-                  <AppNavbar />
-                  <ProtectedRoute allowedRoles={['client']}>
-                    <Dashboard />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <>
-                  <AppNavbar />
-                  <ProtectedRoute allowedRoles={['client']}>
-                    <Profile />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/services"
-              element={
-                <>
-                  <AppNavbar />
-                  <ProtectedRoute allowedRoles={['client']}>
-                    <Services />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
+            {/* Client */}
+            <Route path="/dashboard" element={
+              <ClientLayout>
+                <ProtectedRoute allowedRoles={['client']}><Dashboard /></ProtectedRoute>
+              </ClientLayout>
+            } />
+            <Route path="/profile" element={
+              <ClientLayout>
+                <ProtectedRoute allowedRoles={['client']}><Profile /></ProtectedRoute>
+              </ClientLayout>
+            } />
+            <Route path="/services" element={
+              <ClientLayout>
+                <ProtectedRoute allowedRoles={['client']}><Services /></ProtectedRoute>
+              </ClientLayout>
+            } />
 
-            {/* Vendor Routes */}
-            <Route
-              path="/vendor/dashboard"
-              element={
-                <>
-                  <VendorNavbar />
-                  <ProtectedRoute allowedRoles={['vendor']}>
-                    <VendorDashboard />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/vendor/profile"
-              element={
-                <>
-                  <VendorNavbar />
-                  <ProtectedRoute allowedRoles={['vendor']}>
-                    <VendorProfile />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/vendor/services"
-              element={
-                <>
-                  <VendorNavbar />
-                  <ProtectedRoute allowedRoles={['vendor']}>
-                    <VendorServices />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/vendor/bookings"
-              element={
-                <>
-                  <VendorNavbar />
-                  <ProtectedRoute allowedRoles={['vendor']}>
-                    <VendorAllBookings />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
+            {/* Vendor */}
+            <Route path="/vendor/dashboard" element={
+              <VendorLayout>
+                <ProtectedRoute allowedRoles={['vendor']}><VendorDashboard /></ProtectedRoute>
+              </VendorLayout>
+            } />
+            <Route path="/vendor/profile" element={
+              <VendorLayout>
+                <ProtectedRoute allowedRoles={['vendor']}><VendorProfile /></ProtectedRoute>
+              </VendorLayout>
+            } />
+            <Route path="/vendor/services" element={
+              <VendorLayout>
+                <ProtectedRoute allowedRoles={['vendor']}><VendorServices /></ProtectedRoute>
+              </VendorLayout>
+            } />
+            <Route path="/vendor/bookings" element={
+              <VendorLayout>
+                <ProtectedRoute allowedRoles={['vendor']}><VendorAllBookings /></ProtectedRoute>
+              </VendorLayout>
+            } />
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                <>
-                  <AdminNavbar />
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/admin/profile"
-              element={
-                <>
-                  <AdminNavbar />
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminProfile />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <>
-                  <AdminNavbar />
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminAllUsers />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/admin/bookings"
-              element={
-                <>
-                  <AdminNavbar />
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminAllBookings />
-                  </ProtectedRoute>
-                  <Footer />
-                </>
-              }
-            />
+            {/* Admin */}
+            <Route path="/admin/dashboard" element={
+              <AdminLayout>
+                <ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>
+              </AdminLayout>
+            } />
+            <Route path="/admin/profile" element={
+              <AdminLayout>
+                <ProtectedRoute allowedRoles={['admin']}><AdminProfile /></ProtectedRoute>
+              </AdminLayout>
+            } />
+            <Route path="/admin/users" element={
+              <AdminLayout>
+                <ProtectedRoute allowedRoles={['admin']}><AdminAllUsers /></ProtectedRoute>
+              </AdminLayout>
+            } />
+            <Route path="/admin/bookings" element={
+              <AdminLayout>
+                <ProtectedRoute allowedRoles={['admin']}><AdminAllBookings /></ProtectedRoute>
+              </AdminLayout>
+            } />
 
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
         <ChatbotWidget />
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover />
       </Router>
     </AuthProvider>
   );

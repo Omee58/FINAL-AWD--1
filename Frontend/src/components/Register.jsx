@@ -76,8 +76,7 @@ const Register = () => {
       });
       
       if (result.success) {
-        // AuthContext will handle the redirect based on user role
-        console.log('Register: Registration successful, AuthContext will handle redirect');
+        navigate(result.redirectTo || '/dashboard');
       } else {
         setError(result.message || result.error);
       }

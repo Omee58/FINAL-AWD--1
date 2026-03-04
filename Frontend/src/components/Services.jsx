@@ -1,56 +1,34 @@
 import { useState, useEffect, useRef } from 'react';
-import { Container, Row, Col, Card, Form, Button, Badge, Modal, Alert, Spinner } from 'react-bootstrap';
-import { clientAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button, Badge, Modal, Spinner } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import { clientAPI, formatPrice, UPLOAD_URL } from '../services/api';
+import StarRating from './StarRating';
+
+const CATEGORY_ICONS = { photography: '📸', catering: '🍽️', decoration: '🌸', music: '🎵', transport: '🚗', makeup: '💄', venue: '🏛️' };
 
 const Services = () => {
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [selectedService, setSelectedService] = useState(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingDate, setBookingDate] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
-  const [bookingError, setBookingError] = useState('');
-  const [bookingSuccess, setBookingSuccess] = useState('');
-
-  // Filter states
-  const [filters, setFilters] = useState({
-    category: '',
-    location: '',
-    minPrice: '',
-    maxPrice: '',
-    search: ''
-  });
-
-  // Track initial load
+  const [filters, setFilters] = useState({ category: '', location: '', minPrice: '', maxPrice: '', search: '' });
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
     fetchServices();
-    // After first fetch, set to false
     if (isFirstLoad.current) isFirstLoad.current = false;
-    // eslint-disable-next-line
   }, [filters]);
 
   const fetchServices = async () => {
     setLoading(true);
-    setError('');
     try {
       const response = await clientAPI.getServices(filters);
-      let servicesData = [];
-      if (response && response.data) {
-        if (Array.isArray(response.data)) {
-          servicesData = response.data;
-        } else if (response.data.services && Array.isArray(response.data.services)) {
-          servicesData = response.data.services;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          servicesData = response.data.data;
-        } else {
-          servicesData = [];
-        }
-      }
-      setServices(servicesData);
+      setServices(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch services. Please check if the backend server is running.');
+      toast.error(err.response?.data?.message || 'Failed to fetch services');
       setServices([]);
     } finally {
       setLoading(false);
@@ -59,112 +37,54 @@ const Services = () => {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleBookService = (service) => {
-    setSelectedService(service);
-    setShowBookingModal(true);
-    setBookingError('');
-    setBookingSuccess('');
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
-
-    if (!selectedService) return;
-
-    // Get form data directly from the form elements
-    const form = e.target;
-    const bookingDateInput = form.querySelector('input[name="bookingDate"]');
-
-    const bookingDate = bookingDateInput?.value;
-
-    if (!bookingDate) {
-      setBookingError('Please select a booking date');
-      return;
-    }
-
+    if (!bookingDate) { toast.error('Please select a booking date'); return; }
     if (!selectedService.vendor?._id && !selectedService.vendor?.vendor_id) {
-      setBookingError('Vendor information not available for this service');
+      toast.error('Vendor information unavailable for this service');
       return;
     }
-
     try {
       setBookingLoading(true);
-      setBookingError('');
-      setBookingSuccess('');
-
-      // Prepare booking data according to backend API requirements
-      const bookingData = {
+      const result = await clientAPI.bookService({
         serviceId: selectedService._id || selectedService.service_id,
         vendorId: selectedService.vendor?._id || selectedService.vendor?.vendor_id,
         bookingDate: new Date(bookingDate).toISOString(),
         totalAmount: selectedService.price
-      };
-
-      console.log('Services: Sending booking data:', bookingData);
-      console.log('Services: Data type:', typeof bookingData);
-      console.log('Services: Data stringified:', JSON.stringify(bookingData));
-
-      const result = await clientAPI.bookService(bookingData);
-
+      });
       if (result.success) {
-        setBookingSuccess('Service booked successfully!');
-        setShowBookingModal(false);
-        fetchServices(); // Refresh the list
+        toast.success('Service booked successfully!');
+        setSelectedService(null);
+        setBookingDate('');
       } else {
-        setBookingError(result.message || result.error);
+        toast.error(result.message || 'Booking failed');
       }
     } catch (err) {
-      console.error('Services: Booking error:', err);
-      setBookingError(err.response?.data?.message || 'Failed to book service');
+      toast.error(err.response?.data?.message || 'Failed to book service');
     } finally {
       setBookingLoading(false);
     }
   };
 
-  const clearFilters = () => {
-    setFilters({
-      category: '',
-      location: '',
-      minPrice: '',
-      maxPrice: '',
-      search: ''
-    });
-  };
+  const clearFilters = () => setFilters({ category: '', location: '', minPrice: '', maxPrice: '', search: '' });
 
-  // Ensure services is always an array for mapping
-  const servicesArray = Array.isArray(services) ? services : [];
+  const minDate = new Date();
+  minDate.setDate(minDate.getDate() + 1);
+  const minDateStr = minDate.toISOString().split('T')[0];
 
-  console.log('Services: Rendering with loading:', loading, 'error:', error, 'services:', servicesArray);
-
-  // Only show full-page spinner on first load
-  if (loading && isFirstLoad.current) {
-    return (
-      <div className="services-page">
-        <Container fluid className="h-100">
-          <Row className="h-100 align-items-center justify-content-center">
-            <Col xs={12} className="text-center">
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-              <p className="mt-3">Loading services...</p>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    );
-  }
+  if (loading && isFirstLoad.current) return (
+    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Spinner animation="border" variant="danger" />
+    </div>
+  );
 
   return (
     <div className="services-page">
-      <Container fluid className="h-100">
-        {/* Hero Section */}
-        <Row className="hero-section mb-5">
+      <Container fluid>
+        <Row className="hero-section mb-4">
           <Col xs={12}>
             <div className="hero-content text-center">
               <h1 className="hero-title">Find Wedding Services</h1>
@@ -173,252 +93,146 @@ const Services = () => {
           </Col>
         </Row>
 
-        {/* Error Alert */}
-        {error && (
-          <Row className="mb-4">
-            <Col xs={12}>
-              <Alert variant="danger" dismissible onClose={() => setError('')}>
-                <h5>Error Loading Services</h5>
-                <p>{error}</p>
-                <hr />
-                <p className="mb-0">
-                  <strong>Troubleshooting:</strong>
-                  <br />
-                  1. Make sure your backend server is running on http://localhost:5000
-                  <br />
-                  2. Check the browser console for more details
-                  <br />
-                  3. Try refreshing the page
-                </p>
-              </Alert>
-            </Col>
-          </Row>
-        )}
-
-        {/* Filters Section */}
+        {/* Filters */}
         <Row className="mb-4">
           <Col xs={12}>
             <Card className="filters-card">
-              <Card.Header>
-                <h2 className="section-title mb-0">
-                  <i className="fas fa-filter me-2"></i>
-                  Search & Filters
-                </h2>
-              </Card.Header>
+              <Card.Header><strong>🔍 Search & Filters</strong></Card.Header>
               <Card.Body>
-                <Row>
-                  <Col xs={12} md={6} lg={3} className="mb-3">
-                    <Form.Group>
-                      <Form.Label className="filter-label">Search</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="search"
-                        value={filters.search}
-                        onChange={handleFilterChange}
-                        placeholder="Search services..."
-                        className="filter-input"
-                      />
-                    </Form.Group>
+                <Row className="g-3">
+                  <Col xs={12} md={3}>
+                    <Form.Control type="text" name="search" value={filters.search} onChange={handleFilterChange} placeholder="Search services..." />
                   </Col>
-                  <Col xs={12} md={6} lg={3} className="mb-3">
-                    <Form.Group>
-                      <Form.Label className="filter-label">Category</Form.Label>
-                      <Form.Select
-                        name="category"
-                        value={filters.category}
-                        onChange={handleFilterChange}
-                        className="filter-input"
-                      >
-                        <option value="">All Categories</option>
-                        <option value="photography">Photography</option>
-                        <option value="catering">Catering</option>
-                        <option value="decoration">Decoration</option>
-                        <option value="music">Music</option>
-                        <option value="transport">Transport</option>
-                        <option value="makeup">Makeup</option>
-                      </Form.Select>
-                    </Form.Group>
+                  <Col xs={12} md={3}>
+                    <Form.Select name="category" value={filters.category} onChange={handleFilterChange}>
+                      <option value="">All Categories</option>
+                      {Object.keys(CATEGORY_ICONS).map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
+                    </Form.Select>
                   </Col>
-                  <Col xs={12} md={6} lg={3} className="mb-3">
-                    <Form.Group>
-                      <Form.Label className="filter-label">Location</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="location"
-                        value={filters.location}
-                        onChange={handleFilterChange}
-                        placeholder="Enter location..."
-                        className="filter-input"
-                      />
-                    </Form.Group>
+                  <Col xs={12} md={3}>
+                    <Form.Control type="text" name="location" value={filters.location} onChange={handleFilterChange} placeholder="Location..." />
                   </Col>
-                  <Col xs={12} md={6} lg={3} className="mb-3">
-                    <Form.Group>
-                      <Form.Label className="filter-label">Price Range</Form.Label>
-                      <Row>
-                        <Col xs={6}>
-                          <Form.Control
-                            type="number"
-                            name="minPrice"
-                            value={filters.minPrice}
-                            onChange={handleFilterChange}
-                            placeholder="Min"
-                            className="filter-input"
-                          />
-                        </Col>
-                        <Col xs={6}>
-                          <Form.Control
-                            type="number"
-                            name="maxPrice"
-                            value={filters.maxPrice}
-                            onChange={handleFilterChange}
-                            placeholder="Max"
-                            className="filter-input"
-                          />
-                        </Col>
-                      </Row>
-                    </Form.Group>
+                  <Col xs={6} md={1}>
+                    <Form.Control type="number" name="minPrice" value={filters.minPrice} onChange={handleFilterChange} placeholder="Min ₹" />
+                  </Col>
+                  <Col xs={6} md={1}>
+                    <Form.Control type="number" name="maxPrice" value={filters.maxPrice} onChange={handleFilterChange} placeholder="Max ₹" />
+                  </Col>
+                  <Col xs={12} md={1}>
+                    <Button variant="outline-secondary" onClick={clearFilters} className="w-100">Clear</Button>
                   </Col>
                 </Row>
-                <div className="text-center">
-                  <Button variant="outline-secondary" onClick={clearFilters} className="filter-button">
-                    <i className="fas fa-times me-2"></i>
-                    Clear Filters
-                  </Button>
-                </div>
               </Card.Body>
             </Card>
           </Col>
         </Row>
 
-        {/* Services Section */}
-        <Row>
+        {/* Services Grid */}
+        <Row className="mb-2">
           <Col xs={12}>
-            <Card>
-              <Card.Header>
-                <h2 className="section-title mb-0">
-                  <i className="fas fa-list me-2"></i>
-                  Available Services ({servicesArray.length})
-                  {/* Small spinner for filter changes */}
-                  {loading && !isFirstLoad.current && (
-                    <Spinner
-                      animation="border"
-                      size="sm"
-                      className="ms-2"
-                      style={{ verticalAlign: 'middle' }}
-                    />
-                  )}
-                </h2>
-              </Card.Header>
-              <Card.Body>
-                {servicesArray.length === 0 ? (
-                  <div className="text-center py-5">
-                    <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                    <h4 className="text-muted">No services found</h4>
-                    <p className="text-muted">Try adjusting your filters or search terms</p>
-                  </div>
-                ) : (
-                  <Row>
-                    {servicesArray.map((service) => (
-                      <Col xs={12} md={6} lg={4} key={service._id || service.service_id} className="mb-3">
-                        <Card className="service-card h-100">
-                          <Card.Body>
-                            <div className="d-flex justify-content-between align-items-start mb-2">
-                              <h5 className="service-title">{service.name || service.title || 'Unknown Service'}</h5>
-                              <Badge bg="primary">{service.category || 'General'}</Badge>
-                            </div>
-                            <p className="service-description text-muted">
-                              {service.description || 'No description available'}
-                            </p>
-                            <div className="service-details">
-                              <p className="service-vendor">
-                                <i className="fas fa-user-tie me-2"></i>
-                                {service.vendor?.full_name || 'Unknown Vendor'}
-                              </p>
-                              <p className="service-location">
-                                <i className="fas fa-map-marker-alt me-2"></i>
-                                {service.location || 'Location not specified'}
-                              </p>
-                              <p className="service-price">
-                                <i className="fas fa-rupee-sign me-2"></i>
-                                {service.price || 'Price not available'}
-                              </p>
-                            </div>
-                            <Button
-                              variant="primary"
-                              onClick={() => handleBookService(service)}
-                              className="w-100 service-book-button"
-                            >
-                              <i className="fas fa-calendar-plus me-2"></i>
-                              Book Service
-                            </Button>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                )}
-              </Card.Body>
-            </Card>
+            <div className="d-flex align-items-center gap-2 mb-3">
+              <h5 className="mb-0">Available Services ({services.length})</h5>
+              {loading && <Spinner animation="border" size="sm" variant="danger" />}
+            </div>
           </Col>
         </Row>
 
-        {/* Booking Modal */}
-        <Modal show={showBookingModal} onHide={() => setShowBookingModal(false)} centered>
+        {services.length === 0 && !loading ? (
+          <Card><Card.Body className="text-center py-5">
+            <div style={{ fontSize: '3rem' }}>🔍</div>
+            <h4 className="text-muted mt-2">No services found</h4>
+            <p className="text-muted">Try adjusting your filters</p>
+          </Card.Body></Card>
+        ) : (
+          <Row className="g-3">
+            {services.map((service) => {
+              const imageUrl = service.images?.[0] ? `${UPLOAD_URL}${service.images[0]}` : null;
+              const id = service._id || service.service_id;
+              return (
+                <Col xs={12} md={6} lg={4} key={id}>
+                  <Card className="service-card h-100" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.12)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+                  >
+                    {/* Service Image */}
+                    <div style={{
+                      height: 160, borderRadius: '12px 12px 0 0', overflow: 'hidden',
+                      background: imageUrl ? `url(${imageUrl}) center/cover no-repeat` : 'linear-gradient(135deg, #fff0f7, #f0f4ff)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {!imageUrl && <span style={{ fontSize: '3.5rem' }}>{CATEGORY_ICONS[service.category] || '💍'}</span>}
+                    </div>
+
+                    <Card.Body>
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h5 className="service-title mb-0">{service.title || 'Service'}</h5>
+                        <Badge bg="primary" style={{ textTransform: 'capitalize' }}>{service.category}</Badge>
+                      </div>
+
+                      {/* Rating */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                        <StarRating rating={service.avg_rating || 0} size="0.9rem" />
+                        <small style={{ color: '#888' }}>
+                          {service.avg_rating ? service.avg_rating.toFixed(1) : 'No rating'} ({service.review_count || 0})
+                        </small>
+                      </div>
+
+                      <p className="service-description text-muted" style={{ fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '0.8rem' }}>
+                        {service.description?.length > 90 ? service.description.slice(0, 90) + '...' : service.description}
+                      </p>
+
+                      <div style={{ fontSize: '0.82rem', color: '#666', marginBottom: '1rem' }}>
+                        <span>👤 {service.vendor?.full_name || 'Vendor'}</span>
+                        <span className="ms-3">📍 {service.location}</span>
+                      </div>
+
+                      <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#e91e8c', marginBottom: '0.8rem' }}>
+                        {formatPrice(service.price)}
+                      </div>
+
+                      <div className="d-flex gap-2">
+                        <Button
+                          size="sm" variant="outline-danger" className="flex-fill"
+                          onClick={() => navigate(`/services/${id}`)}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          size="sm" variant="danger" className="flex-fill"
+                          onClick={() => { setSelectedService(service); setBookingDate(''); }}
+                          style={{ background: '#e91e8c', borderColor: '#e91e8c' }}
+                        >
+                          Book Now
+                        </Button>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+        )}
+
+        {/* Quick Booking Modal */}
+        <Modal show={!!selectedService} onHide={() => setSelectedService(null)} centered>
           <Modal.Header closeButton>
-            <Modal.Title>Book Service</Modal.Title>
+            <Modal.Title>Book: {selectedService?.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {bookingError && (
-              <Alert variant="danger" dismissible onClose={() => setBookingError('')}>
-                {bookingError}
-              </Alert>
-            )}
-
-            {bookingSuccess && (
-              <Alert variant="success" dismissible onClose={() => setBookingSuccess('')}>
-                {bookingSuccess}
-              </Alert>
-            )}
-
-            {selectedService && (
-              <div>
-                <h5>{selectedService.name || selectedService.title}</h5>
-                <p className="text-muted">{selectedService.description || 'No description available'}</p>
-                <p><strong>Vendor:</strong> {selectedService.vendor?.full_name || 'Unknown Vendor'}</p>
-                <p><strong>Price:</strong> ₹{selectedService.price || 'Price not available'}</p>
-                <p><strong>Location:</strong> {selectedService.location || 'Location not specified'}</p>
-
-                <Form onSubmit={handleBookingSubmit}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Booking Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="bookingDate"
-                      required
-                      min={new Date().toISOString().split('T')[0]}
-                    />
-                  </Form.Group>
-
-                  <div className="d-grid">
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      disabled={bookingLoading}
-                    >
-                      {bookingLoading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                          Booking...
-                        </>
-                      ) : (
-                        'Confirm Booking'
-                      )}
-                    </Button>
-                  </div>
-                </Form>
+            <p className="text-muted">{selectedService?.description}</p>
+            <p><strong>Vendor:</strong> {selectedService?.vendor?.full_name}</p>
+            <p><strong>Price:</strong> {formatPrice(selectedService?.price)}</p>
+            <Form onSubmit={handleBookingSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Booking Date</Form.Label>
+                <Form.Control type="date" value={bookingDate} min={minDateStr} onChange={e => setBookingDate(e.target.value)} required />
+              </Form.Group>
+              <div className="d-grid">
+                <Button type="submit" disabled={bookingLoading} style={{ background: '#e91e8c', borderColor: '#e91e8c' }}>
+                  {bookingLoading ? <><Spinner size="sm" animation="border" className="me-2" />Booking...</> : 'Confirm Booking'}
+                </Button>
               </div>
-            )}
+            </Form>
           </Modal.Body>
         </Modal>
       </Container>
